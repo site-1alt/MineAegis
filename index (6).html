@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8" />
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=5584e3dd-d9de-4fdb-b5b6-e14e3f925af1
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="MineAegis is a smart mining helmet system that detects toxic gas, fire, falls and darkness, then sends live safety data to a supervisor command center over LoRa." />
+<meta name="theme-color" content="#050505" />
+<meta property="og:title" content="MineAegis | Smart Mining Safety Command System" />
+<meta property="og:description" content="Wearable gas, fire and fall detection with a live supervisor command center." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛑️</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+<title>MineAegis | Smart Mining Safety Command System</title>
+
+<style>
+:root{
+  --coal:#050505;
+  --coal2:#0d0d0d;
+  --steel:#1b1f24;
+  --gold:#f6b73c;
+  --amber:#ff7a18;
+  --cyan:#00e5ff;
+  --green:#00ff9c;
+  --red:#ff3b3b;
+  --white:#f8f8f8;
+  --muted:#a7a7a7;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--coal);
+  color:var(--white);
+  overflow-x:hidden;
+}
+
+/* BACKGROUND */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 15% 15%,rgba(255,122,24,.18),transparent 28%),
+    radial-gradient(circle at 85% 10%,rgba(0,229,255,.13),transparent 30%),
+    radial-gradient(circle at 50% 90%,rgba(246,183,60,.10),transparent 35%),
+    linear-gradient(135deg,#030303,#111,#080808);
+  z-index:-3;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:45px 45px;
+  z-index:-2;
+  mask-image:linear-gradient(to bottom,black,transparent 90%);
+}
+
+/* NAV */
+nav{
+  position:fixed;
+  top:0;
+  width:100%;
+  padding:18px 7%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:999;
+  background:rgba(5,5,5,.72);
+  backdrop-filter:blur(22px);
+  border-bottom:1px solid rgba(246,183,60,.18);
+}
+
+.logo{
+  font-size:1.55rem;
+  font-weight:900;
+  letter-spacing:.8px;
+  color:var(--gold);
+}
+
+.logo span{color:white;}
+.logo{text-decoration:none;margin-left:0;}
+
+nav a{
+  color:#ddd;
+  text-decoration:none;
+  margin-left:22px;
+  font-size:.9rem;
+  transition:.25s;
+}
+
+nav a:hover{color:var(--gold);}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  padding:135px 7% 70px;
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:55px;
+  align-items:center;
+}
+
+.badge{
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+  padding:11px 18px;
+  border-radius:50px;
+  border:1px solid rgba(246,183,60,.45);
+  background:rgba(246,183,60,.08);
+  color:var(--gold);
+  font-weight:800;
+  margin-bottom:25px;
+}
+
+.hero h1{
+  font-size:clamp(3rem,7vw,6.6rem);
+  line-height:.92;
+  letter-spacing:-3px;
+  margin-bottom:28px;
+  background:linear-gradient(90deg,#fff,var(--gold),var(--amber),#fff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  padding-bottom:.1em; /* stops gradient text clipping descenders */
+}
+
+.hero p{
+  color:#c8c8c8;
+  font-size:1.17rem;
+  line-height:1.8;
+  max-width:720px;
+  margin-bottom:34px;
+}
+
+.hero-actions{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  padding:15px 26px;
+  border-radius:14px;
+  font-weight:900;
+  text-decoration:none;
+  transition:.25s;
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold),var(--amber));
+  color:#0b0b0b;
+  box-shadow:0 0 35px rgba(255,122,24,.35);
+}
+
+.btn-secondary{
+  border:1px solid rgba(255,255,255,.22);
+  color:white;
+  background:rgba(255,255,255,.06);
+}
+
+.btn:hover{transform:translateY(-5px);}
+
+/* HERO VISUAL */
+.command-card{
+  position:relative;
+  padding:28px;
+  border-radius:30px;
+  background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.03));
+  border:1px solid rgba(246,183,60,.28);
+  box-shadow:0 0 80px rgba(255,122,24,.22);
+  overflow:hidden;
+}
+
+.command-card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:linear-gradient(120deg,transparent,rgba(246,183,60,.25),transparent);
+  animation:scan 4s infinite;
+}
+
+@keyframes scan{
+  0%{transform:translateX(-100%);}
+  55%{transform:translateX(100%);}
+  100%{transform:translateX(100%);}
+}
+
+.command-inner{
+  position:relative;
+  z-index:2;
+}
+
+.helmet-icon{
+  text-align:center;
+  font-size:8rem;
+  filter:drop-shadow(0 0 30px rgba(246,183,60,.55));
+  margin-bottom:20px;
+}
+
+.live-panel{
+  background:#090909;
+  border:1px solid rgba(0,229,255,.25);
+  border-radius:24px;
+  padding:22px;
+}
+
+.panel-top{
+  display:flex;
+  justify-content:space-between;
+  color:var(--cyan);
+  font-weight:900;
+  margin-bottom:18px;
+}
+
+.pulse{
+  color:var(--green);
+  animation:pulse 1.4s infinite;
+}
+
+@keyframes pulse{
+  50%{opacity:.35;}
+}
+
+.data-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  padding:14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.055);
+  margin-bottom:10px;
+  color:#ddd;
+}
+
+.safe{color:var(--green);}
+.warning{color:var(--gold);}
+.danger{color:var(--red);}
+
+/* GENERAL */
+section{
+  padding:100px 7%;
+}
+
+.section-head{
+  text-align:center;
+  margin-bottom:60px;
+}
+
+.kicker{
+  color:var(--gold);
+  font-weight:900;
+  letter-spacing:2px;
+  margin-bottom:12px;
+  text-transform:uppercase;
+}
+
+.section-head h2{
+  font-size:clamp(2.3rem,4.5vw,4.3rem);
+  letter-spacing:-1.5px;
+  margin-bottom:18px;
+}
+
+.section-head p{
+  max-width:820px;
+  margin:auto;
+  color:var(--muted);
+  line-height:1.8;
+}
+
+/* CRISIS */
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+}
+
+.glass{
+  background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:26px;
+  padding:30px;
+  transition:.3s;
+}
+
+.glass:hover{
+  transform:translateY(-10px);
+  border-color:rgba(246,183,60,.55);
+  box-shadow:0 0 45px rgba(255,122,24,.16);
+}
+
+.icon{
+  font-size:2.8rem;
+  margin-bottom:18px;
+}
+
+.glass h3{
+  color:var(--gold);
+  margin-bottom:14px;
+  font-size:1.25rem;
+}
+
+.glass p{
+  color:#bbb;
+  line-height:1.75;
+}
+
+/* STORIES */
+.stories{
+  background:
+    linear-gradient(rgba(0,0,0,.86),rgba(0,0,0,.9)),
+    repeating-linear-gradient(45deg,#111 0,#111 12px,#151515 12px,#151515 24px);
+}
+
+.timeline{
+  max-width:1050px;
+  margin:auto;
+  border-left:3px solid var(--gold);
+  padding-left:32px;
+}
+
+.story{
+  position:relative;
+  padding:28px;
+  margin-bottom:28px;
+  border-radius:22px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.story::before{
+  content:"";
+  position:absolute;
+  left:-43px;
+  top:28px;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 20px var(--gold);
+}
+
+.story h3{
+  color:var(--gold);
+  margin-bottom:10px;
+}
+
+.story p{
+  color:#c9c9c9;
+  line-height:1.75;
+}
+
+/* SOLUTION */
+.solution-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:36px;
+  align-items:center;
+}
+
+.features{
+  display:grid;
+  gap:18px;
+}
+
+.feature{
+  padding:22px;
+  border-radius:20px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(246,183,60,.18);
+}
+
+.feature h3{
+  color:var(--gold);
+  margin-bottom:8px;
+}
+
+.feature p{
+  color:#c4c4c4;
+  line-height:1.7;
+}
+
+.flow{
+  border-radius:30px;
+  padding:30px;
+  background:#080808;
+  border:1px solid rgba(0,229,255,.24);
+  box-shadow:0 0 55px rgba(0,229,255,.12);
+}
+
+.flow-box{
+  padding:18px;
+  border-radius:18px;
+  margin-bottom:16px;
+  text-align:center;
+  font-weight:900;
+  background:linear-gradient(135deg,rgba(246,183,60,.14),rgba(0,229,255,.08));
+  border:1px solid rgba(255,255,255,.12);
+}
+
+.arrow{
+  text-align:center;
+  color:var(--gold);
+  font-size:1.7rem;
+  margin-bottom:16px;
+}
+
+/* DASHBOARD */
+.dashboard-section{
+  background:#060606;
+}
+
+.dashboard{
+  max-width:1150px;
+  margin:auto;
+  padding:28px;
+  border-radius:30px;
+  background:linear-gradient(145deg,#111,#050505);
+  border:1px solid rgba(0,229,255,.25);
+  box-shadow:0 0 70px rgba(0,229,255,.12);
+}
+
+.dashboard-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:26px;
+}
+
+.dashboard-top h3{
+  color:var(--cyan);
+  font-size:1.5rem;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.stat{
+  padding:22px;
+  border-radius:20px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.stat h4{
+  color:#aaa;
+  margin-bottom:8px;
+}
+
+.stat strong{
+  font-size:2rem;
+  color:var(--gold);
+}
+
+.table{
+  display:grid;
+  gap:10px;
+}
+
+.table-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;
+  padding:15px;
+  border-radius:15px;
+  background:rgba(255,255,255,.055);
+  color:#ddd;
+}
+
+.table-head{
+  color:var(--gold);
+  font-weight:900;
+}
+
+/* TECH */
+.tech-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+}
+
+.tech-box{
+  text-align:center;
+  padding:30px 18px;
+  border-radius:24px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.09);
+}
+
+.tech-box h3{
+  color:var(--gold);
+  margin:12px 0;
+}
+
+.tech-box p{
+  color:#aaa;
+  line-height:1.65;
+}
+
+/* ROADMAP */
+.roadmap{
+  background:#090909;
+}
+
+.road-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:22px;
+}
+
+.step{
+  padding:28px;
+  border-radius:24px;
+  background:linear-gradient(145deg,#171717,#080808);
+  border:1px solid rgba(246,183,60,.18);
+}
+
+.step span{
+  display:inline-block;
+  color:#080808;
+  background:var(--gold);
+  font-weight:900;
+  width:38px;
+  height:38px;
+  display:inline-grid;
+  place-items:center;
+  border-radius:50%;
+  margin-bottom:16px;
+}
+
+.step h3{
+  color:white;
+  margin-bottom:12px;
+}
+
+.step p{
+  color:#aaa;
+  line-height:1.65;
+}
+
+/* IMPACT */
+.impact-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:22px;
+}
+
+.impact-card{
+  text-align:center;
+  padding:34px;
+  border-radius:26px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(246,183,60,.18);
+}
+
+.impact-card h3{
+  font-size:2.9rem;
+  color:var(--gold);
+  margin-bottom:8px;
+}
+
+.impact-card p{color:#bbb;}
+
+/* CTA */
+.cta{
+  text-align:center;
+  padding:110px 7%;
+  background:
+    radial-gradient(circle at center,rgba(255,122,24,.22),transparent 35%),
+    #050505;
+}
+
+.cta h2{
+  font-size:clamp(2.5rem,5vw,5rem);
+  margin-bottom:20px;
+}
+
+.cta p{
+  color:#bbb;
+  max-width:780px;
+  margin:0 auto 32px;
+  line-height:1.8;
+}
+
+footer{
+  padding:38px 7%;
+  text-align:center;
+  color:#888;
+  background:#020202;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+/* REVEAL */
+.reveal{
+  opacity:0;
+  transform:translateY(35px);
+  transition:opacity 1s ease, transform 1s ease, border-color .3s, box-shadow .3s;
+}
+
+.reveal.active{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.glass.reveal.active:hover{
+  transform:translateY(-10px);
+  transition-duration:.3s;
+}
+
+@media(max-width:950px){
+  .hero,.solution-layout{
+    grid-template-columns:1fr;
+  }
+
+  .grid-3{
+    grid-template-columns:1fr;
+  }
+
+  .table-row{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+
+  nav{
+    flex-direction:column;
+    gap:12px;
+  }
+
+  nav a{
+    margin:0 7px;
+    font-size:.8rem;
+  }
+}
+
+/* ---------- IMPROVEMENTS ---------- */
+.skip-link{
+  position:fixed;
+  left:16px;
+  top:-60px;
+  z-index:1000;
+  padding:10px 16px;
+  border-radius:10px;
+  background:var(--gold);
+  color:#0b0b0b;
+  font-weight:800;
+  text-decoration:none;
+  transition:top .2s;
+}
+.skip-link:focus{top:12px;}
+
+a:focus-visible,
+.btn:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+  border-radius:8px;
+}
+
+section[id]{scroll-margin-top:84px;}
+
+nav a.current{color:var(--gold);}
+
+.btn:active{transform:translateY(-1px);}
+
+/* numbers stay put while live values change */
+.stat strong,
+.data-row span,
+.table-row span{font-variant-numeric:tabular-nums;}
+
+.table-row span{min-width:0;overflow-wrap:anywhere;}
+
+.live-panel .data-row:last-child,
+.table .table-row:last-child{margin-bottom:0;}
+
+/* if JavaScript is off, never leave content hidden */
+.no-js .reveal{opacity:1;transform:none;}
+
+@media(max-width:1180px){
+  .tech-grid,.road-grid,.impact-grid,.stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:950px){
+  .table-head{display:none;}
+
+  .table-row > span[data-label]::before{
+    content:attr(data-label);
+    display:block;
+    font-size:.72rem;
+    color:var(--muted);
+    margin-bottom:2px;
+  }
+
+  nav > div:last-child{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    row-gap:6px;
+  }
+
+  .hero{padding-top:150px;}
+}
+
+@media(max-width:600px){
+  .tech-grid,.road-grid,.impact-grid,.stats{
+    grid-template-columns:1fr;
+  }
+
+  section{padding:80px 6%;}
+  .helmet-icon{font-size:5.5rem;}
+  .dashboard{padding:18px;}
+  .dashboard-top{flex-direction:column;align-items:flex-start;gap:10px;}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{
+    animation:none !important;
+    transition-duration:.01ms !important;
+  }
+  .reveal{opacity:1;transform:none;}
+}
+
+/* ---------- FEATURES ---------- */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:1001;background:linear-gradient(90deg,var(--gold),var(--amber),var(--cyan));}
+.to-top{position:fixed;right:22px;bottom:22px;z-index:998;width:46px;height:46px;border-radius:50%;border:1px solid rgba(246,183,60,.5);background:rgba(5,5,5,.8);color:var(--gold);font-size:1.3rem;font-weight:900;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s,transform .2s;backdrop-filter:blur(10px);}
+.to-top.show{opacity:1;pointer-events:auto;}
+.to-top:hover{transform:translateY(-3px);}
+.to-top:focus-visible,.ctrl:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;}
+
+.dash-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-bottom:24px;}
+.panel{padding:22px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);}
+.panel h4{color:#aaa;margin-bottom:12px;display:flex;justify-content:space-between;gap:10px;}
+.panel h4 small{color:var(--muted);font-weight:400;}
+#spark{width:100%;height:90px;display:block;}
+#spark polyline{fill:none;stroke:var(--cyan);stroke-width:2;stroke-linejoin:round;}
+#spark line{stroke:var(--red);stroke-dasharray:4 4;stroke-width:1;opacity:.6;}
+#alert-log{list-style:none;display:grid;gap:8px;max-height:150px;overflow:auto;font-size:.88rem;}
+#alert-log li{color:#ddd;padding-left:10px;border-left:3px solid var(--cyan);}
+#alert-log li.warning{border-color:var(--gold);}
+#alert-log li.danger{border-color:var(--red);}
+#alert-log time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums;}
+
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:20px;}
+.ctrl{padding:12px 20px;border-radius:12px;border:1px solid rgba(246,183,60,.45);background:rgba(246,183,60,.08);color:var(--gold);font-weight:800;cursor:pointer;transition:.2s;}
+.ctrl:hover{background:rgba(246,183,60,.18);}
+.ctrl[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff;}
+.hint{color:var(--muted);font-size:.85rem;}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,120px);z-index:1002;padding:14px 22px;border-radius:14px;background:#1a0b0b;border:1px solid var(--red);color:#fff;font-weight:700;transition:transform .35s;max-width:90vw;}
+.toast.show{transform:translate(-50%,0);}
+
+.faq{max-width:860px;margin:auto;display:grid;gap:12px;}
+.faq details{border-radius:18px;background:rgba(255,255,255,.055);border:1px solid rgba(246,183,60,.18);padding:18px 22px;}
+.faq summary{cursor:pointer;font-weight:800;color:var(--gold);list-style-position:outside;}
+.faq details[open] summary{margin-bottom:10px;}
+.faq p{color:#bbb;line-height:1.75;}
+
+@media(max-width:950px){.dash-grid{grid-template-columns:1fr;}}
+
+/* ---------- UI POLISH ---------- */
+::selection{background:var(--gold);color:#0b0b0b;}
+html{scrollbar-color:#3a3a3a var(--coal);scrollbar-width:thin;}
+
+/* nav condenses once you scroll */
+nav{transition:padding .3s,background .3s,box-shadow .3s;}
+nav.scrolled{padding-top:11px;padding-bottom:11px;background:rgba(5,5,5,.9);box-shadow:0 10px 30px rgba(0,0,0,.45);}
+
+/* soft divider between sections */
+section[id]{position:relative;}
+section[id]::before{content:"";position:absolute;top:0;left:7%;right:7%;height:1px;background:linear-gradient(90deg,transparent,rgba(246,183,60,.35),transparent);}
+
+/* hero: one gentle float on the helmet */
+.helmet-icon{animation:float 5s ease-in-out infinite;}
+@keyframes float{50%{transform:translateY(-10px);}}
+.badge{box-shadow:0 0 24px rgba(246,183,60,.12);}
+.btn-primary:hover{box-shadow:0 0 50px rgba(255,122,24,.55);}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+
+/* section headings: short accent bar under the kicker */
+.kicker::after{content:"";display:block;width:44px;height:3px;margin:12px auto 0;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--amber));}
+
+/* shared card hover so every grid feels alive */
+.feature,.tech-box,.step,.impact-card,.stat,.story{transition:border-color .3s,box-shadow .3s,background .3s;}
+.feature:hover,.tech-box:hover,.step:hover,.impact-card:hover,.story:hover{border-color:rgba(246,183,60,.5);box-shadow:0 0 36px rgba(255,122,24,.14);background:rgba(255,255,255,.08);}
+
+/* tech icons sit in a tile */
+.tech-box .icon{width:68px;height:68px;margin:0 auto 6px;display:grid;place-items:center;font-size:2rem;border-radius:20px;background:linear-gradient(145deg,rgba(246,183,60,.18),rgba(0,229,255,.08));border:1px solid rgba(246,183,60,.25);}
+
+/* impact numbers */
+.impact-card h3{background:linear-gradient(135deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;}
+
+/* dashboard: colour-coded stats and status pills */
+.stat{border-top:3px solid var(--cyan);}
+.stat:nth-child(2){border-top-color:var(--green);}
+.stat:nth-child(3){border-top-color:var(--red);}
+.stat:nth-child(4){border-top-color:var(--gold);}
+.stat h4{font-size:.85rem;font-weight:600;}
+
+.table-row{align-items:center;transition:background .25s;}
+.table-row:not(.table-head):hover{background:rgba(255,255,255,.1);}
+.table-row span.safe,.table-row span.warning,.table-row span.danger,
+.data-row span.safe,.data-row span.warning,.data-row span.danger{justify-self:start;padding:4px 12px;border-radius:50px;font-size:.85rem;font-weight:800;}
+.table-row span.safe,.data-row span.safe{background:rgba(0,255,156,.12);}
+.table-row span.warning,.data-row span.warning{background:rgba(246,183,60,.14);}
+.table-row span.danger,.data-row span.danger{background:rgba(255,59,59,.15);}
+.data-row{align-items:center;}
+
+.live-panel{box-shadow:inset 0 0 40px rgba(0,229,255,.05);}
+.panel,.stat{backdrop-filter:blur(6px);}
+
+/* FAQ chevron */
+.faq summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary::after{content:"+";font-size:1.5rem;line-height:1;transition:transform .25s;}
+.faq details[open] summary::after{transform:rotate(45deg);}
+.faq details{transition:border-color .3s;}
+.faq details[open]{border-color:rgba(246,183,60,.5);}
+
+footer{font-size:.9rem;line-height:1.7;}
+
+@media(max-width:950px){
+  /* stacked mobile table: pills would swallow the label, so reset them */
+  .table-row span.safe,.table-row span.warning,.table-row span.danger{background:none;padding:0;border-radius:0;font-size:inherit;}
+  .table-row:not(.table-head){padding:16px;}
+}
+</style>
+</head>
+
+<body id="top">
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav aria-label="Main">
+  <a class="logo" href="#top" aria-label="MineAegis home">Mine<span>Aegis</span></a>
+  <div>
+    <a href="#crisis">Crisis</a>
+    <a href="#stories">Stories</a>
+    <a href="#solution">Solution</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#technology">Technology</a>
+    <a href="#impact">Impact</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<section class="hero">
+  <div class="reveal">
+    <div class="badge">⛑️ Industrial Safety • IoT • LoRa</div>
+    <h1>Mining Safety Reimagined.</h1>
+    <p>
+      MineAegis is a premium smart mining helmet ecosystem that detects toxic gases,
+      fire risk, sudden falls, and darkness — then transmits live safety data to a supervisor
+      command center using long-range LoRa communication.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#solution">Explore the System</a>
+      <a class="btn btn-secondary" href="#dashboard">View Live Dashboard</a>
+    </div>
+  </div>
+
+  <div class="command-card reveal">
+    <div class="command-inner">
+      <div class="helmet-icon" aria-hidden="true">⛑️</div>
+      <div class="live-panel">
+        <div class="panel-top">
+          <span>Helmet Unit M-03</span>
+          <span class="pulse">LIVE ●</span>
+        </div>
+        <div class="data-row"><span>Gas</span><span id="hero-gas">782 ppm</span><span id="hero-gas-status" class="warning">Warning</span></div>
+        <div class="data-row"><span>Fire</span><span>Detected</span><span class="danger">Critical</span></div>
+        <div class="data-row"><span>Fall</span><span>No</span><span class="safe">Stable</span></div>
+        <div class="data-row"><span>Torch</span><span>ON</span><span class="safe">Auto</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="crisis">
+  <div class="section-head reveal">
+    <div class="kicker">The Crisis</div>
+    <h2>Invisible dangers become disasters.</h2>
+    <p>
+      Underground mines are complex environments where danger can rise silently.
+      A miner may not see poisonous gas, fire may spread quickly, and a fall may go unnoticed.
+    </p>
+  </div>
+
+  <div class="grid-3">
+    <div class="glass reveal">
+      <div class="icon" aria-hidden="true">☠️</div>
+      <h3>Toxic Gas Exposure</h3>
+      <p>Harmful gases can collect in low-ventilation zones and cause dizziness, unconsciousness, or death.</p>
+    </div>
+
+    <div class="glass reveal">
+      <div class="icon" aria-hidden="true">🔥</div>
+      <h3>Fire &amp; Methane Risk</h3>
+      <p>Flammable gases and sparks can create sudden fire or explosion hazards underground.</p>
+    </div>
+
+    <div class="glass reveal">
+      <div class="icon" aria-hidden="true">🚨</div>
+      <h3>Delayed Rescue</h3>
+      <p>If a miner falls or gets trapped, every minute matters. Delayed communication can cost lives.</p>
+    </div>
+  </div>
+</section>
+
+<section class="stories" id="stories">
+  <div class="section-head reveal">
+    <div class="kicker">Real Incidents</div>
+    <h2>Built from real-world mining risks.</h2>
+    <p>
+      Our project is inspired by mining accidents where earlier detection and faster communication
+      could have improved rescue response.
+    </p>
+  </div>
+
+  <div class="timeline">
+    <div class="story reveal">
+      <h3>Meghalaya Mine Tragedies</h3>
+      <p>
+        Several mine incidents in Meghalaya have shown how dangerous unmonitored underground mining can be,
+        especially when miners become trapped and rescue teams lack live information.
+      </p>
+    </div>
+
+    <div class="story reveal">
+      <h3>Jharkhand Coal Belt Accidents</h3>
+      <p>
+        Coal regions have witnessed collapses, gas exposure, and fire-related accidents,
+        proving the need for wearable safety technology and command-center monitoring.
+      </p>
+    </div>
+
+    <div class="story reveal">
+      <h3>Global Underground Mine Fires</h3>
+      <p>
+        Many global mine disasters have involved methane buildup, oxygen shortage, and poor communication.
+        MineAegis directly targets these problems.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="solution">
+  <div class="section-head reveal">
+    <div class="kicker">Our Solution</div>
+    <h2>Helmet + Sensors + LoRa + Command Center.</h2>
+    <p>
+      A smart wearable system that protects miners locally and informs supervisors remotely.
+    </p>
+  </div>
+
+  <div class="solution-layout">
+    <div class="features">
+      <div class="feature reveal">
+        <h3>1. Toxic Gas Detection</h3>
+        <p>MQ gas sensor monitors air quality and alerts when dangerous gas levels rise.</p>
+      </div>
+
+      <div class="feature reveal">
+        <h3>2. Fire Detection</h3>
+        <p>Flame sensor detects fire signs and sends a critical warning to the dashboard.</p>
+      </div>
+
+      <div class="feature reveal">
+        <h3>3. Fall Detection</h3>
+        <p>Tilt/fall sensor detects sudden impact or abnormal helmet position.</p>
+      </div>
+
+      <div class="feature reveal">
+        <h3>4. Automatic Torch</h3>
+        <p>LDR sensor turns on a high-power LED torch when darkness is detected.</p>
+      </div>
+
+      <div class="feature reveal">
+        <h3>5. Rescue Alert</h3>
+        <p>If a fall is detected and no recovery happens, the supervisor receives a rescue alert.</p>
+      </div>
+    </div>
+
+    <div class="flow reveal">
+      <div class="flow-box">⛑️ Smart Helmet Unit</div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="flow-box">🔥 Sensors detect gas, fire, fall and darkness</div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="flow-box">📡 LoRa SX1278 sends live data</div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="flow-box">🖥️ Mine Safety Command Center</div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="flow-box">🚑 Faster rescue decision</div>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-section" id="dashboard">
+  <div class="section-head reveal">
+    <div class="kicker">Supervisor View</div>
+    <h2>Mine Safety Command Center</h2>
+    <p>
+      The supervisor can monitor individual miner data and average mine safety numbers.
+    </p>
+  </div>
+
+  <div class="dashboard reveal">
+    <div class="dashboard-top">
+      <h3>Live Monitoring Dashboard</h3>
+      <span class="pulse safe" role="status">SYSTEM ONLINE ●</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><h4>Average Gas</h4><strong id="avg-gas">428 ppm</strong></div>
+      <div class="stat"><h4>Active Miners</h4><strong>12</strong></div>
+      <div class="stat"><h4>Fire Alerts</h4><strong class="danger">1</strong></div>
+      <div class="stat"><h4>Fall Alerts</h4><strong class="warning">2</strong></div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="panel">
+        <h4>Average gas trend <small>last 30 readings</small></h4>
+        <svg id="spark" viewBox="0 0 300 90" preserveAspectRatio="none" role="img" aria-label="Average gas trend chart"><line id="spark-limit" x1="0" x2="300" y1="0" y2="0"/><polyline id="spark-line" points=""/></svg>
+        <p class="hint">Dashed line marks the 700 ppm danger level.</p>
+      </div>
+      <div class="panel">
+        <h4>Alert log <small>newest first</small></h4>
+        <ul id="alert-log" role="log" aria-live="polite"></ul>
+      </div>
+    </div>
+
+    <div class="table" role="table" aria-label="Miner status">
+      <div class="table-row table-head" role="row">
+        <span role="columnheader">Miner</span><span role="columnheader">Gas</span><span role="columnheader">Fire</span><span role="columnheader">Fall</span><span role="columnheader">Torch</span><span role="columnheader">Status</span>
+      </div>
+      <div class="table-row" role="row">
+        <span role="cell" data-label="Miner">M-01</span><span role="cell" data-label="Gas" class="safe">Safe</span><span role="cell" data-label="Fire">No</span><span role="cell" data-label="Fall">No</span><span role="cell" data-label="Torch">ON</span><span role="cell" data-label="Status" class="safe">Stable</span>
+      </div>
+      <div class="table-row" role="row">
+        <span role="cell" data-label="Miner">M-02</span><span role="cell" data-label="Gas" class="warning">High</span><span role="cell" data-label="Fire">No</span><span role="cell" data-label="Fall">No</span><span role="cell" data-label="Torch">ON</span><span role="cell" data-label="Status" class="warning">Warning</span>
+      </div>
+      <div class="table-row" role="row">
+        <span role="cell" data-label="Miner">M-03</span><span role="cell" data-label="Gas" class="danger">Critical</span><span role="cell" data-label="Fire">Yes</span><span role="cell" data-label="Fall">No</span><span role="cell" data-label="Torch">ON</span><span role="cell" data-label="Status" class="danger">Evacuate</span>
+      </div>
+      <div class="table-row" role="row">
+        <span role="cell" data-label="Miner">M-04</span><span role="cell" data-label="Gas" class="safe">Safe</span><span role="cell" data-label="Fire">No</span><span role="cell" data-label="Fall" class="warning">Fall</span><span role="cell" data-label="Torch">ON</span><span role="cell" data-label="Status" class="warning">Check</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl" id="sim-fall" aria-pressed="false">Simulate fall on M-02</button>
+      <span class="hint">Demo only: shows how a missed recovery becomes a rescue alert.</span>
+    </div>
+  </div>
+</section>
+
+<section id="technology">
+  <div class="section-head reveal">
+    <div class="kicker">Technology</div>
+    <h2>Engineered like an industrial IoT system.</h2>
+    <p>
+      The system combines embedded electronics, sensors, radio communication and dashboard intelligence.
+    </p>
+  </div>
+
+  <div class="tech-grid">
+    <div class="tech-box reveal">
+      <div class="icon" aria-hidden="true">📡</div>
+      <h3>LoRa SX1278</h3>
+      <p>Long-range communication between helmet and supervisor station.</p>
+    </div>
+
+    <div class="tech-box reveal">
+      <div class="icon" aria-hidden="true">🧠</div>
+      <h3>Arduino / ESP32</h3>
+      <p>Microcontroller processes all sensor readings and sends safety packets.</p>
+    </div>
+
+    <div class="tech-box reveal">
+      <div class="icon" aria-hidden="true">🌫️</div>
+      <h3>MQ Gas Sensor</h3>
+      <p>Detects smoke, LPG-like gas and dangerous air conditions.</p>
+    </div>
+
+    <div class="tech-box reveal">
+      <div class="icon" aria-hidden="true">🔥</div>
+      <h3>Flame Sensor</h3>
+      <p>Detects nearby fire or flame source and triggers emergency alert.</p>
+    </div>
+
+    <div class="tech-box reveal">
+      <div class="icon" aria-hidden="true">💡</div>
+      <h3>LDR Auto Light</h3>
+      <p>Automatically turns torch on in dark mine zones.</p>
+    </div>
+
+    <div class="tech-box reveal">
+      <div class="icon" aria-hidden="true">🚨</div>
+      <h3>Buzzer Alert</h3>
+      <p>Gives immediate local warning to the miner.</p>
+    </div>
+
+    <div class="tech-box reveal">
+      <div class="icon" aria-hidden="true">🔋</div>
+      <h3>18650 Battery</h3>
+      <p>Rechargeable power source suitable for wearable helmet prototypes.</p>
+    </div>
+
+    <div class="tech-box reveal">
+      <div class="icon" aria-hidden="true">🖥️</div>
+      <h3>Web Dashboard</h3>
+      <p>Displays live miner status, average values and crisis alerts.</p>
+    </div>
+  </div>
+</section>
+
+<section class="roadmap">
+  <div class="section-head reveal">
+    <div class="kicker">Implementation</div>
+    <h2>How we will build it.</h2>
+    <p>
+      The prototype is designed in stages so it is practical, testable and competition-ready.
+    </p>
+  </div>
+
+  <div class="road-grid">
+    <div class="step reveal">
+      <span>1</span>
+      <h3>Sensor Testing</h3>
+      <p>Test gas, flame, LDR and fall sensors separately on breadboard.</p>
+    </div>
+
+    <div class="step reveal">
+      <span>2</span>
+      <h3>Helmet Integration</h3>
+      <p>Mount sensors, torch, buzzer and battery safely on the helmet.</p>
+    </div>
+
+    <div class="step reveal">
+      <span>3</span>
+      <h3>LoRa Link</h3>
+      <p>Connect one LoRa module to helmet and another to supervisor station.</p>
+    </div>
+
+    <div class="step reveal">
+      <span>4</span>
+      <h3>Dashboard Demo</h3>
+      <p>Show live data, warnings and rescue alerts on website dashboard.</p>
+    </div>
+  </div>
+</section>
+
+<section id="impact">
+  <div class="section-head reveal">
+    <div class="kicker">Impact</div>
+    <h2>Designed to protect lives.</h2>
+    <p>
+      MineAegis is not just a gadget. It is a safety ecosystem built for faster awareness,
+      faster response and safer mining.
+    </p>
+  </div>
+
+  <div class="impact-grid">
+    <div class="impact-card reveal">
+      <h3>4</h3>
+      <p>Major hazards detected</p>
+    </div>
+
+    <div class="impact-card reveal">
+      <h3>24/7</h3>
+      <p>Continuous monitoring</p>
+    </div>
+
+    <div class="impact-card reveal">
+      <h3>1</h3>
+      <p>Central command center</p>
+    </div>
+
+    <div class="impact-card reveal">
+      <h3>∞</h3>
+      <p>Potential lives protected</p>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="section-head reveal">
+    <div class="kicker">Questions</div>
+    <h2>What people ask about MineAegis.</h2>
+  </div>
+  <div class="faq reveal">
+    <details><summary>How far can the LoRa link reach?</summary><p>Open-air LoRa can cover kilometers, but tunnels block and bend signals. Real range depends on the mine layout, and long or winding galleries may need relay nodes.</p></details>
+    <details><summary>Are the sensors accurate enough for certified gas monitoring?</summary><p>No. MQ sensors give a rough reading and need calibration. This prototype shows the concept; a deployed system would use certified methane and CO detectors.</p></details>
+    <details><summary>What happens when a miner falls?</summary><p>The tilt sensor flags the fall. If the helmet does not return to a normal position, the supervisor dashboard raises a rescue alert.</p></details>
+    <details><summary>Does the helmet work without the command center?</summary><p>Yes. The buzzer and torch run on the helmet, so the miner is warned locally even if the radio link drops.</p></details>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="reveal">
+    <h2>The future of mining is intelligent, connected and safer.</h2>
+    <p>
+      MineAegis brings wearable safety technology, wireless communication and supervisor intelligence together
+      to make underground mining safer for every worker.
+    </p>
+    <a class="btn btn-primary" href="#dashboard">Launch Command Center</a>
+  </div>
+</section>
+
+</main>
+
+<button class="to-top" id="to-top" aria-label="Back to top">↑</button>
+<div class="toast" id="toast" role="alert"></div>
+
+<footer>
+  © 2026 MineAegis | Vasudha Innovation Project | Smart Mining Safety Helmet System
+</footer>
+
+<script>
+(function(){
+  document.documentElement.classList.remove("no-js");
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Reveal on scroll (same effect as before, without a scroll listener) */
+  const reveals = document.querySelectorAll(".reveal");
+
+  if("IntersectionObserver" in window && !reduceMotion){
+    const revealObserver = new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        // also reveal items the visitor has already scrolled past (e.g. via a nav link)
+        if(entry.isIntersecting || entry.boundingClientRect.top < 0){
+          entry.target.classList.add("active");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },{rootMargin:"0px 0px -80px 0px", threshold:0.01});
+    reveals.forEach(el=>revealObserver.observe(el));
+  }else{
+    reveals.forEach(el=>el.classList.add("active"));
+  }
+
+  /* Highlight the nav link for the section being viewed */
+  const navLinks = document.querySelectorAll('nav a[href^="#"]:not(.logo)');
+  const linkById = new Map();
+  navLinks.forEach(a=>linkById.set(a.getAttribute("href").slice(1), a));
+
+  if("IntersectionObserver" in window){
+    const spy = new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting) return;
+        navLinks.forEach(l=>{
+          l.classList.remove("current");
+          l.removeAttribute("aria-current");
+        });
+        const link = linkById.get(entry.target.id);
+        if(link){
+          link.classList.add("current");
+          link.setAttribute("aria-current","true");
+        }
+      });
+    },{rootMargin:"-45% 0px -50% 0px"});
+
+    linkById.forEach((_, id)=>{
+      const section = document.getElementById(id);
+      if(section) spy.observe(section);
+    });
+  }
+
+  /* Scroll progress + back-to-top */
+  const bar = document.getElementById("progress");
+  const topBtn = document.getElementById("to-top");
+  function onScroll(){
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (max > 0 ? window.scrollY / max * 100 : 0) + "%";
+    topBtn.classList.toggle("show", window.scrollY > 600);
+    document.querySelector("nav").classList.toggle("scrolled", window.scrollY > 40);
+  }
+  window.addEventListener("scroll", onScroll, {passive:true});
+  onScroll();
+  topBtn.addEventListener("click", ()=>window.scrollTo({top:0, behavior: reduceMotion ? "auto" : "smooth"}));
+
+  /* Toast + alert log */
+  const toast = document.getElementById("toast");
+  let toastTimer;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toast.classList.remove("show"), 4000);
+  }
+
+  const log = document.getElementById("alert-log");
+  function addLog(msg, level){
+    const li = document.createElement("li");
+    if(level) li.className = level;
+    const t = document.createElement("time");
+    t.textContent = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+    li.append(t, msg);
+    log.prepend(li);
+    while(log.children.length > 8) log.lastChild.remove();
+  }
+  addLog("M-03 flame sensor triggered. Evacuation advised.", "danger");
+  addLog("M-02 gas above normal range.", "warning");
+  addLog("All helmets reporting over LoRa.");
+
+  const events = [
+    ["M-01 torch switched ON (low light).", ""],
+    ["M-02 gas level easing.", ""],
+    ["M-04 helmet position normal again.", ""],
+    ["M-03 gas still above warning level.", "warning"],
+    ["LoRa packet received from M-01.", ""]
+  ];
+  setInterval(()=>{
+    if(document.hidden) return;
+    const e = events[Math.floor(Math.random()*events.length)];
+    addLog(e[0], e[1]);
+  }, 7000);
+
+  /* Gas sparkline */
+  const sparkLine = document.getElementById("spark-line");
+  const sparkLimit = document.getElementById("spark-limit");
+  const history = Array.from({length:30}, ()=>428);
+  const yFor = v => 90 - ((v - 340) / (800 - 340)) * 90;
+  if(sparkLimit){ sparkLimit.setAttribute("y1", yFor(700)); sparkLimit.setAttribute("y2", yFor(700)); }
+  function drawSpark(v){
+    history.push(v); history.shift();
+    sparkLine.setAttribute("points", history.map((h,i)=>(i/(history.length-1)*300).toFixed(1)+","+yFor(h).toFixed(1)).join(" "));
+  }
+  if(sparkLine) drawSpark(428);
+
+  /* Simulated fall -> rescue alert on M-02 */
+  const simBtn = document.getElementById("sim-fall");
+  const m02 = document.querySelectorAll(".table-row")[2].children;
+  const fallStat = document.querySelectorAll(".stat strong")[3];
+  const saved = {fall:m02[3].textContent, status:m02[5].textContent, statusCls:m02[5].className, stat:fallStat.textContent};
+  simBtn.addEventListener("click", ()=>{
+    const on = simBtn.getAttribute("aria-pressed") !== "true";
+    simBtn.setAttribute("aria-pressed", on);
+    simBtn.textContent = on ? "Reset M-02" : "Simulate fall on M-02";
+    if(on){
+      m02[3].textContent = "Fall"; m02[3].className = "danger";
+      m02[5].textContent = "Rescue"; m02[5].className = "danger";
+      fallStat.textContent = String(+saved.stat + 1);
+      addLog("M-02 fall detected, no recovery. Rescue alert sent.", "danger");
+      showToast("Rescue alert: M-02 fell and has not recovered.");
+    }else{
+      m02[3].textContent = saved.fall; m02[3].className = "";
+      m02[5].textContent = saved.status; m02[5].className = saved.statusCls;
+      fallStat.textContent = saved.stat;
+      addLog("M-02 alert cleared by supervisor.");
+    }
+  });
+
+  /* Fake live dashboard effect */
+  const avgGasEl = document.getElementById("avg-gas");
+  const heroGasEl = document.getElementById("hero-gas");
+  const heroStatusEl = document.getElementById("hero-gas-status");
+
+  const clamp = (v, min, max)=>Math.min(max, Math.max(min, v));
+  const jitter = ()=>Math.floor(Math.random()*21)-10;
+
+  let gas = 428;       // average across the mine
+  let heroGas = 782;   // helmet M-03
+
+  setInterval(()=>{
+    if(document.hidden) return; // don't update while the tab is in the background
+
+    if(avgGasEl){
+      gas = clamp(gas + jitter(), 360, 790);
+      avgGasEl.textContent = gas + " ppm";
+      drawSpark(gas);
+    }
+
+    if(heroGasEl && heroStatusEl){
+      heroGas = clamp(heroGas + jitter(), 740, 840);
+      heroGasEl.textContent = heroGas + " ppm";
+      const critical = heroGas >= 800;
+      heroStatusEl.textContent = critical ? "Critical" : "Warning";
+      heroStatusEl.className = critical ? "danger" : "warning";
+    }
+  }, 1500);
+})();
+</script>
+
+</body>
+</html>
